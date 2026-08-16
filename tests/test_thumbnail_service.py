@@ -3,7 +3,7 @@ from src.utils.exception import NoThumbnailError
 import pytest
 
 def test_generate_thumbnail(tmp_filepath):
-    image_id = "test_id"
+    image_id = 1
     thumbnail_path = thumbnail_service.generate_thumbnail(tmp_filepath, image_id)
 
     # 检查生成的缩略图是否存在
@@ -22,14 +22,14 @@ def test_generate_thumbnail(tmp_filepath):
     thumbnail_path.unlink()
 
 def test_generate_thumbnail_with_nonexistent_file():
-    image_id = "nonexistent_id"
+    image_id = 1
 
     # 不存在的文件应抛出异常
     with pytest.raises(NoThumbnailError):
         thumbnail_service.generate_thumbnail("non_existent_file.png", image_id)
 
 def test_ensure_thumbnail(tmp_filepath, tmp_filepath_2):
-    image_id = "ensure_test_id"
+    image_id = 1
 
     # 调用 ensure_thumbnail 方法
     ensured_thumbnail_path = thumbnail_service.ensure_thumbnail(image_id, tmp_filepath)
@@ -51,7 +51,7 @@ def test_ensure_thumbnail(tmp_filepath, tmp_filepath_2):
 def test_clear_thumbnails(tmp_filepath):
     # 生成数个缩略图
     for i in range(5):
-        image_id = f"clear_test_id_{i}"
+        image_id = i
         thumbnail_path = thumbnail_service.get_thumbnail_path(image_id)
         thumbnail_service.generate_thumbnail(tmp_filepath, image_id)
         assert thumbnail_path.exists(), "缩略图未生成"
@@ -60,7 +60,7 @@ def test_clear_thumbnails(tmp_filepath):
     thumbnail_service.clear_thumbnails()
 
     # 检查缩略图是否已被删除
-    assert not thumbnail_path.exists(), "缩略图未被清除"
+    assert not any(thumbnail_service.get_thumbnail_path(i).exists() for i in range(5)), "缩略图未被清空"
 
 if __name__ == "__main__":
     # 运行测试
