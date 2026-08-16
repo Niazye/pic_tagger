@@ -1,7 +1,6 @@
 from pathlib import Path
 import sys
 
-
 def get_base_path() -> Path:
     """
     获取程序基础路径。
@@ -15,7 +14,6 @@ def get_base_path() -> Path:
     else:
         # 开发环境：返回 src 目录
         return Path(__file__).parent.parent
-
 
 def get_app_root() -> Path:
     """
@@ -70,6 +68,11 @@ def get_config_path() -> Path:
     return get_user_data_path() / "config.json"
 
 
+def get_assets_dir() -> Path:
+    """获取资源目录（默认缩略图等静态资源）。"""
+    return get_app_root() / "assets"
+
+
 def ensure_dirs() -> None:
     """
     确保所有必要的目录存在。
@@ -80,3 +83,5 @@ def ensure_dirs() -> None:
     """
     get_thumbnail_dir().mkdir(parents=True, exist_ok=True)
     get_logs_dir().mkdir(parents=True, exist_ok=True)
+
+ensure_dirs()
