@@ -197,7 +197,7 @@ class ImageRepository:
              image.is_missing),
         )
         conn.commit()
-        image.id = cur.lastrowid
+        image.id = cur.lastrowid # type: ignore
         return image
 
     def get_by_id(self, image_id: int) -> Image | None:

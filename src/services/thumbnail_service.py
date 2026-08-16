@@ -10,7 +10,7 @@ from src.utils.exception import NoThumbnailError
 DEFAULT_THUMBNAIL = "default.png"
 
 class ThumbnailService:
-    def generate_thumbnail(self, image_path: Path, image_id: str, size=(200, 200)) -> Path:
+    def generate_thumbnail(self, image_path: Path, image_id: int, size=(200, 200)) -> Path:
         """
         生成缩略图。
 
@@ -29,14 +29,14 @@ class ThumbnailService:
         except (FileNotFoundError, UnidentifiedImageError, OSError):
             raise NoThumbnailError(f"无法生成缩略图: {image_path}")
 
-    def get_thumbnail_path(self, image_id) -> Path:
+    def get_thumbnail_path(self, image_id: int) -> Path:
         return get_thumbnail_dir() / f"{image_id}.png"
 
     def get_default_thumbnail_path(self) -> Path:
         """返回默认缩略图路径（图片不可用时的占位图）。"""
         return get_assets_dir() / DEFAULT_THUMBNAIL
 
-    def ensure_thumbnail(self, image_id: str, image_path: Path, size=(200, 200)) -> Path:
+    def ensure_thumbnail(self, image_id: int, image_path: Path, size=(200, 200)) -> Path:
         """
         确保缩略图存在，如果不存在则生成。
 
