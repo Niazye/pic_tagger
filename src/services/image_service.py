@@ -1,0 +1,68 @@
+"""
+图片服务
+"""
+from pathlib import Path
+from src.services.hash_service import HashService
+from src.services.thumbnail_service import ThumbnailService
+from src.models.image import Image
+from src.database.repository import ImageRepository
+from datetime import datetime
+from src.utils.exception import ImageExistError
+class ImageService:
+    def add_image(self, path: Path) -> Image | None:
+        """
+        添加图片到数据库。
+
+        :param path: 图片文件路径
+        :return: Image 对象，如果添加失败则返回 None
+        """
+        if not path.exists() or not path.is_file():
+            raise FileNotFoundError(f"文件不存在: {path}")
+        image_repo = ImageRepository()
+
+        file_hash = HashService().compute_sha256(path)
+        if image_repo.get_by_hash(file_hash):
+            # 如果数据库中已经存在该图片
+            raise ImageExistError(f"图片已导入: {path}")
+        import PIL.Image
+        f = PIL.Image.open(path)
+        width, height = f.size
+        f.close()
+        image = Image(
+            file_path=str(path),
+            file_hash=file_hash,
+            file_name=path.name,
+            file_size=path.stat().st_size,
+            width=width,
+            height=height,
+            file_mtime=datetime.fromtimestamp(path.stat().st_mtime),
+        )
+        image_repo.create(image)
+        ThumbnailService().ensure_thumbnail(image.id, path)
+        return image
+    def remove_image(self, image_id: int, delete_file: bool = False) -> Image | None:
+        """
+        从数据库中删除图片。
+
+        :param image_id: 图片 ID
+        :return: 如果删除成功返回删除的图片对应的 Image 对象，否则返回 None
+        """
+        image_repo = ImageRepository()
+        image = image_repo.get_by_id(image_id)
+        if not image:
+            return None
+
+        # 删除数据库中的图片记录
+        image_repo.delete(image_id)
+        
+        # 删除缩略图
+        ThumbnailService().remove_thumbnail(image_id)
+
+        # 如果需要删除原始文件
+        if delete_file:
+            try:
+                path = Path(image.file_path)
+                if path.exists():
+                    path.unlink()
+            except Exception as e:
+                print(f"删除文件失败: {e}")
