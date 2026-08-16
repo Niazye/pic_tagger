@@ -69,3 +69,7 @@ class ThumbnailService:
         thumbnail_dir = get_thumbnail_dir()
         for thumbnail_file in thumbnail_dir.glob("*.png"):
             thumbnail_file.unlink()
+
+
+# 模块级单例实例
+thumbnail_service = ThumbnailService()

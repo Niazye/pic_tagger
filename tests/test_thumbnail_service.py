@@ -1,9 +1,8 @@
-from src.services import ThumbnailService
+from src.services import thumbnail_service
 from src.utils.exception import NoThumbnailError
 import pytest
 
 def test_generate_thumbnail(tmp_filepath):
-    thumbnail_service = ThumbnailService()
     image_id = "test_id"
     thumbnail_path = thumbnail_service.generate_thumbnail(tmp_filepath, image_id)
 
@@ -23,7 +22,6 @@ def test_generate_thumbnail(tmp_filepath):
     thumbnail_path.unlink()
 
 def test_generate_thumbnail_with_nonexistent_file():
-    thumbnail_service = ThumbnailService()
     image_id = "nonexistent_id"
 
     # 不存在的文件应抛出异常
@@ -31,7 +29,6 @@ def test_generate_thumbnail_with_nonexistent_file():
         thumbnail_service.generate_thumbnail("non_existent_file.png", image_id)
 
 def test_ensure_thumbnail(tmp_filepath, tmp_filepath_2):
-    thumbnail_service = ThumbnailService()
     image_id = "ensure_test_id"
 
     # 调用 ensure_thumbnail 方法
@@ -52,7 +49,6 @@ def test_ensure_thumbnail(tmp_filepath, tmp_filepath_2):
     ensured_thumbnail_path.unlink()
 
 def test_clear_thumbnails(tmp_filepath):
-    thumbnail_service = ThumbnailService()
     # 生成数个缩略图
     for i in range(5):
         image_id = f"clear_test_id_{i}"

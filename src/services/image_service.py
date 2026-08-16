@@ -2,10 +2,10 @@
 图片服务
 """
 from pathlib import Path
-from src.services.hash_service import HashService
-from src.services.thumbnail_service import ThumbnailService
+from src.services.hash_service import hash_service
+from src.services.thumbnail_service import thumbnail_service
 from src.models.image import Image
-from src.database.repository import ImageRepository
+from src.database.repository import images
 from datetime import datetime
 from src.utils.exception import ImageExistError
 class ImageService:
@@ -18,10 +18,9 @@ class ImageService:
         """
         if not path.exists() or not path.is_file():
             raise FileNotFoundError(f"文件不存在: {path}")
-        image_repo = ImageRepository()
 
-        file_hash = HashService().compute_sha256(path)
-        if image_repo.get_by_hash(file_hash):
+        file_hash = hash_service.compute_sha256(str(path))
+        if images.get_by_hash(file_hash):
             # 如果数据库中已经存在该图片
             raise ImageExistError(f"图片已导入: {path}")
         import PIL.Image
@@ -37,8 +36,8 @@ class ImageService:
             height=height,
             file_mtime=datetime.fromtimestamp(path.stat().st_mtime),
         )
-        image_repo.create(image)
-        ThumbnailService().ensure_thumbnail(image.id, path)
+        images.create(image)
+        thumbnail_service.ensure_thumbnail(image.id, path)
         return image
     def remove_image(self, image_id: int, delete_file: bool = False) -> Image | None:
         """
@@ -47,16 +46,15 @@ class ImageService:
         :param image_id: 图片 ID
         :return: 如果删除成功返回删除的图片对应的 Image 对象，否则返回 None
         """
-        image_repo = ImageRepository()
-        image = image_repo.get_by_id(image_id)
+        image = images.get_by_id(image_id)
         if not image:
             return None
 
         # 删除数据库中的图片记录
-        image_repo.delete(image_id)
+        images.delete(image_id)
         
         # 删除缩略图
-        ThumbnailService().remove_thumbnail(image_id)
+        thumbnail_service.remove_thumbnail(image_id)
 
         # 如果需要删除原始文件
         if delete_file:
@@ -66,3 +64,6 @@ class ImageService:
                     path.unlink()
             except Exception as e:
                 print(f"删除文件失败: {e}")
+
+# 模块级单例实例
+image_service = ImageService()

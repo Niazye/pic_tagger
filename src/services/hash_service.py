@@ -16,3 +16,7 @@ class HashService:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
+
+
+# 模块级单例实例
+hash_service = HashService()

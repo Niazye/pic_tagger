@@ -13,6 +13,11 @@ from database.repository import (
     ImageRepository,
     ImageTagRepository,
     SearchRepository,
+    categories,
+    tags,
+    images,
+    image_tags,
+    search,
 )
 
 __all__ = [
