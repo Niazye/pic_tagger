@@ -5,7 +5,10 @@ from pathlib import Path
 
 # 测试目录路径
 TESTS_DIR = Path(__file__).parent
-
+@pytest.fixture
+def default_thumbnail_path() -> Path:
+    """返回默认缩略图路径（default.png）。"""
+    return (TESTS_DIR / "default.png")
 
 @pytest.fixture
 def tmp_filepath() -> str:
