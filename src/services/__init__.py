@@ -1,1 +1,2 @@
 from src.services.hash_service import HashService
+from src.services.thumbnail_service import ThumbnailService
