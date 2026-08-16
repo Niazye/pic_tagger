@@ -1,13 +1,8 @@
 """数据库层：连接管理、建表、数据访问。"""
 
-from database.connection import Database, get_db, get_connection
-from database.schema import create_tables
-from database.repository import (
-    categories,
-    tags,
-    images,
-    image_tags,
-    search,
+from src.database.connection import Database, get_db, get_connection
+from src.database.schema import create_tables
+from src.database.repository import (
     CategoryRepository,
     TagRepository,
     ImageRepository,

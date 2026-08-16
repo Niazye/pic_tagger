@@ -3,8 +3,8 @@
 import sqlite3
 from pathlib import Path
 
-from utils.path import get_db_path, ensure_dirs
-from database.schema import create_tables
+from src.utils.path import get_db_path, ensure_dirs
+from src.database.schema import create_tables
 
 
 class Database:
