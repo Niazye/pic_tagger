@@ -4,7 +4,8 @@
 
 from PIL import Image, UnidentifiedImageError
 from pathlib import Path
-from utils.path import get_thumbnail_dir, get_assets_dir
+from src.utils.path import get_thumbnail_dir, get_assets_dir
+from src.utils.exception import NoThumbnailError
 
 DEFAULT_THUMBNAIL = "default.png"
 
@@ -18,19 +19,18 @@ class ThumbnailService:
         :param size: 缩略图尺寸，默认为 (200, 200)
         :return: 缩略图路径；若图片不可用，返回默认缩略图路径
         """
-        file_name = f"{image_id}.jpg"
+        file_name = f"{image_id}.png"
         thumbnail_path = get_thumbnail_dir() / file_name
         try:
-            with Image.open(image_path) as img:
+            with Image.open(image_path) as img: 
                 img.thumbnail(size)
-                img.save(thumbnail_path, "JPEG")
+                img.save(thumbnail_path, "PNG")
             return thumbnail_path
         except (FileNotFoundError, UnidentifiedImageError, OSError):
-            # 图片不存在、损坏或无法解析时，使用默认缩略图
-            return self.get_default_thumbnail_path()
+            raise NoThumbnailError(f"无法生成缩略图: {image_path}")
 
     def get_thumbnail_path(self, image_id) -> Path:
-        return get_thumbnail_dir() / f"{image_id}.jpg"
+        return get_thumbnail_dir() / f"{image_id}.png"
 
     def get_default_thumbnail_path(self) -> Path:
         """返回默认缩略图路径（图片不可用时的占位图）。"""
@@ -55,5 +55,5 @@ class ThumbnailService:
         清空所有缩略图缓存。
         """
         thumbnail_dir = get_thumbnail_dir()
-        for thumbnail_file in thumbnail_dir.glob("*.jpg"):
+        for thumbnail_file in thumbnail_dir.glob("*.png"):
             thumbnail_file.unlink()
