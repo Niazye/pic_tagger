@@ -200,6 +200,16 @@ class ImageRepository:
         image.id = cur.lastrowid # type: ignore
         return image
 
+    def get_by_name(self, image_name: str) -> list[Image]:
+        row = get_connection().execute(
+            "SELECT * FROM images WHERE name = ?", (image_name, )
+        ).fetchall()
+        return [_row_to_image(r) for r in row]
+    def get_by_name_keyword(self, keyword: str) -> list[Image]:
+        row = get_connection().execute(
+            "SELECT * FROM images WHERE name LIKE '%?%'", (keyword,)
+        ).fetchall()
+        return [_row_to_image(r) for r in row]
     def get_by_id(self, image_id: int) -> Image | None:
         row = get_connection().execute(
             "SELECT * FROM images WHERE id = ?", (image_id,)
@@ -378,9 +388,13 @@ class SearchRepository:
         conditions: [(category_id, tag_name), ...]
         logic: 'AND'（交集）或 'OR'（并集）
         """
-        if not conditions:
-            return []
         conn = get_connection()
+        if not conditions:
+            # 没有条件，返回全部结果
+            rows = conn.execute(
+                "SELECT * FROM images ORDER BY created_at DESC"
+            ).fetchall()
+            return [_row_to_image(r) for r in rows]
 
         if logic.upper() == "OR":
             # 并集：满足任一条件
