@@ -2,6 +2,10 @@
 
 import sqlite3
 
+# 默认分类（"未分类"）的固定 id 与名称
+DEFAULT_CATEGORY_ID = 1
+DEFAULT_CATEGORY_NAME = "未分类"
+
 # 建表语句（与设计文档 3.3 节一致）
 SCHEMA_SQL = """
 -- 标签分类表
@@ -58,4 +62,10 @@ CREATE INDEX IF NOT EXISTS idx_images_hash ON images(file_hash);
 def create_tables(conn: sqlite3.Connection) -> None:
     """在给定连接上执行建表语句。"""
     conn.executescript(SCHEMA_SQL)
+    # 自动创建默认分类（"未分类"），幂等（INSERT OR IGNORE）
+    conn.execute(
+        "INSERT OR IGNORE INTO categories (id, name, sort_order, category_type) "
+        "VALUES (?, ?, 0, 'free')",
+        (DEFAULT_CATEGORY_ID, DEFAULT_CATEGORY_NAME),
+    )
     conn.commit()
