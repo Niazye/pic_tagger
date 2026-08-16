@@ -36,6 +36,18 @@ class ThumbnailService:
         """返回默认缩略图路径（图片不可用时的占位图）。"""
         return get_assets_dir() / DEFAULT_THUMBNAIL
 
+    def remove_thumbnail(self, image_id: int):
+        """
+        删除指定图片 ID 的缩略图。
+
+        :param image_id: 图片 ID
+        """
+        thumbnail_path = self.get_thumbnail_path(image_id)
+        if thumbnail_path.exists():
+            thumbnail_path.unlink()
+        else:
+            raise NoThumbnailError(f"缩略图不存在: {thumbnail_path}")
+
     def ensure_thumbnail(self, image_id: int, image_path: Path, size=(200, 200)) -> Path:
         """
         确保缩略图存在，如果不存在则生成。
