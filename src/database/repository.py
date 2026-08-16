@@ -315,7 +315,7 @@ class ImageTagRepository:
         )
         conn.commit()
 
-    def get_tags_for_image(self, image_id: int) -> list[Tag]:
+    def get_tags_from_image(self, image_id: int) -> list[Tag]:
         rows = get_connection().execute(
             "SELECT t.* FROM tags t "
             "JOIN image_tags it ON it.tag_id = t.id "
@@ -324,7 +324,7 @@ class ImageTagRepository:
         ).fetchall()
         return [_row_to_tag(r) for r in rows]
 
-    def get_images_for_tag(self, tag_id: int) -> list[Image]:
+    def get_images_from_tag(self, tag_id: int) -> list[Image]:
         rows = get_connection().execute(
             "SELECT i.* FROM images i "
             "JOIN image_tags it ON it.image_id = i.id "
@@ -333,7 +333,7 @@ class ImageTagRepository:
         ).fetchall()
         return [_row_to_image(r) for r in rows]
 
-    def get_image_tags_grouped(self, image_id: int) -> dict[int, list[Tag]]:
+    def get_image_tags_grouped_by_category(self, image_id: int) -> dict[int, list[Tag]]:
         """按分类分组返回图片的标签。"""
         rows = get_connection().execute(
             "SELECT t.*, c.id AS cid FROM tags t "
@@ -347,7 +347,7 @@ class ImageTagRepository:
             grouped.setdefault(r["cid"], []).append(_row_to_tag(r))
         return grouped
 
-    def count_images_for_tag(self, tag_id: int) -> int:
+    def count_images_from_tag(self, tag_id: int) -> int:
         row = get_connection().execute(
             "SELECT COUNT(*) AS cnt FROM image_tags WHERE tag_id = ?", (tag_id,)
         ).fetchone()
