@@ -2,3 +2,4 @@ from src.services.hash_service import HashService, hash_service
 from src.services.thumbnail_service import ThumbnailService, thumbnail_service
 from src.services.image_service import ImageService, image_service
 from src.services.category_service import CategoryService, category_service
+from src.services.tag_service import TagService, tag_service
