@@ -75,7 +75,7 @@ class ImageService:
         """
         return images.get_by_hash(file_hash)
 
-    def get_all_imagse(self) -> list[Image]:
+    def get_all_images(self) -> list[Image]:
         """
         获取所有图片。
 
