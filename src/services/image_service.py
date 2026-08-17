@@ -66,5 +66,22 @@ class ImageService:
                 print(f"删除文件失败: {e}")
         return image
 
+    def get_image_by_hash(self, file_hash: str) -> Image | None:
+        """
+        根据文件哈希获取图片。
+
+        :param file_hash: 文件哈希
+        :return: 如果找到返回对应的 Image 对象，否则返回 None
+        """
+        return images.get_by_hash(file_hash)
+
+    def get_all_imagse(self) -> list[Image]:
+        """
+        获取所有图片。
+
+        :return: 图片列表
+        """
+        return images.get_all()
+
 # 模块级单例实例
 image_service = ImageService()
