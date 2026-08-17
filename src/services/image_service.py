@@ -64,6 +64,7 @@ class ImageService:
                     path.unlink()
             except Exception as e:
                 print(f"删除文件失败: {e}")
+        return image
 
 # 模块级单例实例
 image_service = ImageService()
