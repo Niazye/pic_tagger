@@ -25,7 +25,7 @@ class ImportWorker(QThread):
                     self.image_imported.emit(image)
                     success_count += 1
             except ImageExistError as e:
-                self.conflict.emit(path, str(e))
+                self.conflict.emit(str(path), str(e))
                 failure_count += 1
             except Exception as e:
                 print(f"导入图片失败: {path}, 错误: {e}")
