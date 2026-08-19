@@ -39,13 +39,23 @@ def _row_to_image(row: sqlite3.Row) -> Image:
         file_hash=row["file_hash"],
         file_name=row["file_name"],
         description=row["description"],
-        created_at=row["created_at"],
+        created_at=_parse_datetime(row["created_at"]),
         file_size=row["file_size"],
         width=row["width"],
         height=row["height"],
-        file_mtime=row["file_mtime"],
+        file_mtime=_parse_datetime(row["file_mtime"]),
         is_missing=row["is_missing"],
     )
+
+def _parse_datetime(value: str | None) -> datetime | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value
+    try:
+        return datetime.fromisoformat(str(value))
+    except (ValueError, TypeError):
+        return None
 
 
 # ============================================================
