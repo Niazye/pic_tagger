@@ -3,6 +3,7 @@ from src.services import image_service, category_service, image_tag_service
 from src.models import Image, Category
 from datetime import datetime
 from src.utils.logger import get_logger
+from src.utils.format import *
 
 logger = get_logger(__name__)
 
@@ -58,20 +59,20 @@ class DetailTableView(QTableWidget):
         self.setItem(row, 0, QTableWidgetItem(image.file_name or image.file_path))
 
         # 大小
-        size_text = self._format_size(image.file_size)
+        size_text = format_size(image.file_size)
         self.setItem(row, 1, _NumericItem(size_text, image.file_size or 0))
 
         # 尺寸
-        dim_text = f"{image.width}×{image.height}" if image.width and image.height else "未知"
+        dim_text = format_dimension(image.width, image.height)
         area = (image.width or 0) * (image.height or 0)
         self.setItem(row, 2, _NumericItem(dim_text, area))
 
         # 修改时间
-        mtime_text = self._format_datetime(image.file_mtime)
+        mtime_text = format_datetime(image.file_mtime)
         self.setItem(row, 3, QTableWidgetItem(mtime_text))
 
         # 导入时间
-        ctime_text = self._format_datetime(image.created_at)
+        ctime_text = format_datetime(image.created_at)
         self.setItem(row, 4, QTableWidgetItem(ctime_text))
 
         grouped_tags = image_tag_service.get_image_tags_grouped_by_category(image.id)
@@ -79,17 +80,3 @@ class DetailTableView(QTableWidget):
             tags = grouped_tags.get(category.id, [])
             tag_text = "、".join(tag.name for tag in tags) if tags else ""
             self.setItem(row, col, QTableWidgetItem(tag_text))
-
-    def _format_size(self, size: int | None) -> str:
-        if not size:
-            return ""
-        if size < 1024:
-            return f"{size} B"
-        if size < 1024 * 1024:
-            return f"{size / 1024:.1f} KB"
-        return f"{size / (1024 * 1024):.1f} MB"
-
-    def _format_datetime(self, dt: datetime | None) -> str:
-        if not dt:
-            return ""
-        return dt.strftime("%Y-%m-%d %H:%M")
