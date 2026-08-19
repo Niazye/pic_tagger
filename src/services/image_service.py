@@ -8,6 +8,10 @@ from src.models.image import Image
 from src.database.repository import images
 from datetime import datetime
 from src.utils.exception import ImageExistError
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 class ImageService:
     def add_image(self, path: Path) -> Image | None:
         """
@@ -63,7 +67,7 @@ class ImageService:
                 if path.exists():
                     path.unlink()
             except Exception as e:
-                print(f"删除文件失败: {e}")
+                logger.error(f"删除原始文件失败: {image.file_path}, 错误: {e}", exc_info=True)
         return image
 
     def get_image_by_hash(self, file_hash: str) -> Image | None:

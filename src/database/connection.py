@@ -5,6 +5,9 @@ from pathlib import Path
 
 from src.utils.path import get_db_path, ensure_dirs
 from src.database.schema import create_tables
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Database:
@@ -29,6 +32,7 @@ class Database:
         # 返回字典形式的行，便于按列名访问
         self._conn.row_factory = sqlite3.Row
         create_tables(self._conn)
+        logger.info(f"数据库连接已建立: {self.db_path}")
         return self._conn
 
     @property
@@ -40,6 +44,7 @@ class Database:
         """关闭连接。"""
         if self._conn is not None:
             self._conn.close()
+            logger.info(f"数据库连接已关闭: {self.db_path}")
             self._conn = None
 
     def transaction(self):

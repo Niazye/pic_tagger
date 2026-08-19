@@ -4,6 +4,9 @@ from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QMainWindow
 from src.models.image import Image
 from src.workers.import_worker import ImportWorker
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class ImportController(QObject):
     import_finished = pyqtSignal(int, int)  # 完成信号，参数为成功数和失败数
@@ -14,17 +17,19 @@ class ImportController(QObject):
         self.worker = None
 
     def import_files(self, paths: list[Path]) -> None:
+        logger.info(f"开始导入 {len(paths)} 个文件")
         self._start_import(paths)
 
     def import_folder(self, folder_path: Path) -> None:
         paths = [
             p for p in folder_path.rglob('*') if p.is_file() and p.suffix.lower() in self.IMAGE_EXTENSIONS
         ]
+        logger.info(f"开始导入文件夹 {folder_path}，共找到 {len(paths)} 个图片文件")
         self._start_import(paths)
 
     def _start_import(self, paths: list[Path]) -> None:
         if not paths:
-            print("没有文件需要导入。")
+            logger.warning("没有文件可导入")
             self.import_finished.emit(0, 0)
             return
         self.worker = ImportWorker(paths)

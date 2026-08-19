@@ -1,5 +1,8 @@
 from src.database.repository import tags
 from src.models.tag import Tag
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class TagService:
     def add_tag(self, category_id: int, name: str, url: str | None = None) -> Tag:
@@ -10,7 +13,9 @@ class TagService:
         :param url: 标签链接，可选
         :return: 创建的标签对象
         """
-        return tags.create(category_id=category_id, name=name, url=url)
+        tag = tags.create(category_id=category_id, name=name, url=url)
+        logger.info(f"创建标签: id={tag.id}, category_id={category_id}, name={name}")
+        return tag
 
     def rename_tag(self, tag_id: int, new_name: str) -> Tag | None:
         """重命名一个标签
@@ -21,9 +26,12 @@ class TagService:
         """
         tag = tags.get_by_id(tag_id)
         if not tag:
+            logger.warning(f"重命名标签失败: 标签不存在 id={tag_id}")
             return None
+        old_name = tag.name
         tag.name = new_name
         tags.rename(tag_id, new_name)
+        logger.info(f"重命名标签: id={tag_id}, {old_name} -> {new_name}")
         return tag
 
     def delete_tag(self, tag_id: int) -> Tag | None:
@@ -34,8 +42,10 @@ class TagService:
         """
         tag = tags.get_by_id(tag_id)
         if not tag:
+            logger.warning(f"删除标签失败: 标签不存在 id={tag_id}")
             return None
         tags.delete(tag_id)
+        logger.info(f"删除标签: id={tag_id}, name={tag.name}")
         return tag
 
     def get_all_tags_by_category(self, category_id: int) -> list[Tag]:
@@ -55,9 +65,11 @@ class TagService:
         """
         tag = tags.get_by_id(tag_id)
         if not tag or not url:
+            logger.warning(f"设置标签链接失败: 标签不存在或链接为空 id={tag_id}")
             return None
         tag.url = url
         tags.set_url(tag_id, url)
+        logger.info(f"设置标签链接: id={tag_id}, url={url}")
         return tag
 
     def autocomplete_tags(self, prefix: str, limit: int = 10) -> list[Tag]:
@@ -65,5 +77,5 @@ class TagService:
         """
         raise NotImplementedError("标签自动补全功能尚未实现")
 
-    
+
 tag_service = TagService()

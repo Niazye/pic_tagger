@@ -6,6 +6,9 @@ from PIL import Image, UnidentifiedImageError
 from pathlib import Path
 from src.utils.path import get_thumbnail_dir, get_assets_dir
 from src.utils.exception import NoThumbnailError
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 DEFAULT_THUMBNAIL = "default.png"
 
@@ -22,11 +25,13 @@ class ThumbnailService:
         file_name = f"{image_id}.png"
         thumbnail_path = get_thumbnail_dir() / file_name
         try:
-            with Image.open(image_path) as img: 
+            with Image.open(image_path) as img:
                 img.thumbnail(size)
                 img.save(thumbnail_path, "PNG")
+            logger.info(f"生成缩略图: image_id={image_id}, path={thumbnail_path}")
             return thumbnail_path
-        except (FileNotFoundError, UnidentifiedImageError, OSError):
+        except (FileNotFoundError, UnidentifiedImageError, OSError) as e:
+            logger.error(f"生成缩略图失败: image_id={image_id}, path={image_path}, 错误: {e}")
             raise NoThumbnailError(f"无法生成缩略图: {image_path}")
 
     def get_thumbnail_path(self, image_id: int) -> Path:
@@ -45,7 +50,9 @@ class ThumbnailService:
         thumbnail_path = self.get_thumbnail_path(image_id)
         if thumbnail_path.exists():
             thumbnail_path.unlink()
+            logger.info(f"删除缩略图: image_id={image_id}, path={thumbnail_path}")
         else:
+            logger.warning(f"删除缩略图失败: 缩略图不存在 image_id={image_id}")
             raise NoThumbnailError(f"缩略图不存在: {thumbnail_path}")
 
     def ensure_thumbnail(self, image_id: int, image_path: Path, size=(200, 200)) -> Path:
@@ -67,8 +74,11 @@ class ThumbnailService:
         清空所有缩略图缓存。
         """
         thumbnail_dir = get_thumbnail_dir()
+        count = 0
         for thumbnail_file in thumbnail_dir.glob("*.png"):
             thumbnail_file.unlink()
+            count += 1
+        logger.info(f"清空缩略图缓存: 共删除 {count} 个文件")
 
 
 # 模块级单例实例

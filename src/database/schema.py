@@ -1,6 +1,9 @@
 """数据库建表 SQL 与初始化。"""
 
 import sqlite3
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 # 默认分类（"未分类"）的固定 id 与名称
 DEFAULT_CATEGORY_ID = 1
@@ -69,3 +72,4 @@ def create_tables(conn: sqlite3.Connection) -> None:
         (DEFAULT_CATEGORY_ID, DEFAULT_CATEGORY_NAME),
     )
     conn.commit()
+    logger.info("数据库表结构初始化完成")

@@ -2,6 +2,9 @@ from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QMainWindow
 from src.services import image_service, category_service, image_tag_service
 from src.models import Image, Category
 from datetime import datetime
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class _NumericItem(QTableWidgetItem):
     """自定义的 QTableWidgetItem，用于支持数值排序。"""
@@ -48,6 +51,7 @@ class DetailTableView(QTableWidget):
 
         # 重新启用排序
         self.setSortingEnabled(True)
+        logger.debug(f"刷新详细信息表格: 共 {len(images)} 张图片, {len(categories)} 个分类")
 
     def _populate_row(self, row: int, image: Image, categories: list[Category]) -> None:
         # 文件名

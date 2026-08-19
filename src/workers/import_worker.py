@@ -1,7 +1,10 @@
 from PyQt6.QtCore import QThread, pyqtSignal
 from pathlib import Path
 from src.utils.exception import ImageExistError
+from src.utils.logger import get_logger
 from src.services.image_service import image_service
+
+logger = get_logger(__name__)
 
 class ImportWorker(QThread):
     progress = pyqtSignal(int, int) # 进度信号，参数为当前进度和总进度
@@ -24,10 +27,13 @@ class ImportWorker(QThread):
                 if image:
                     self.image_imported.emit(image)
                     success_count += 1
+                    logger.info(f"导入成功: {path}")
             except ImageExistError as e:
                 self.conflict.emit(str(path), str(e))
                 failure_count += 1
+                logger.warning(f"图片已存在；跳过: {path}")
             except Exception as e:
-                print(f"导入图片失败: {path}, 错误: {e}")
+                logger.error(f"导入图片失败: {path}, 错误: {e}", exc_info=True)
                 failure_count += 1
+        logger.info(f"导入完成: 成功 {success_count} 张，失败 {failure_count} 张")
         self.finished.emit(success_count, failure_count)
