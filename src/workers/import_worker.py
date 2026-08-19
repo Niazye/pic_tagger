@@ -2,7 +2,7 @@ from PyQt6.QtCore import QThread, pyqtSignal
 from pathlib import Path
 from src.utils.exception import ImageExistError
 from src.utils.logger import get_logger
-from src.services.image_service import image_service
+from src.services import image_service
 
 logger = get_logger(__name__)
 

@@ -1,9 +1,9 @@
 from pathlib import Path
-from src.services.image_service import image_service
+from src.services import image_service
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QMainWindow
-from src.models.image import Image
-from src.workers.import_worker import ImportWorker
+from src.models import Image
+from src.workers import ImportWorker
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)

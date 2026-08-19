@@ -7,10 +7,8 @@
 import sqlite3
 from datetime import datetime
 
-from src.database.connection import get_connection
-from src.models.category import Category
-from src.models.tag import Tag
-from src.models.image import Image
+from src.database import get_connection
+from src.models import Category, Tag, Image
 
 
 def _row_to_category(row: sqlite3.Row) -> Category:

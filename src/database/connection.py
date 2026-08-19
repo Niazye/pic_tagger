@@ -4,7 +4,7 @@ import sqlite3
 from pathlib import Path
 
 from src.utils.path import get_db_path, ensure_dirs
-from src.database.schema import create_tables
+from src.database import create_tables
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)

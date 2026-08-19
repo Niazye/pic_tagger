@@ -1,7 +1,5 @@
 from src.database import image_tags
-from src.models.image_tag import ImageTag
-from src.models.tag import Tag
-from src.models.image import Image
+from src.models import ImageTag, Tag, Image
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)

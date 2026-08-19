@@ -1,5 +1,5 @@
-from src.database.repository import tags
-from src.models.tag import Tag
+from src.database import tags
+from src.models import Tag
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)

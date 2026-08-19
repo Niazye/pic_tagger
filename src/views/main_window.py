@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout, QWidget, QLabel, QFileDialog
-from src.views.toolbar import ToolBar
-from src.views.detail_table_view import DetailTableView
-from src.controllers.import_controller import ImportController
+from src.views import ToolBar, DetailTableView
+from src.controllers import ImportController
 from PyQt6.QtCore import Qt
 from pathlib import Path
 from src.utils.logger import get_logger
@@ -33,7 +32,6 @@ class MainWindow(QMainWindow):
         middle_layout = QHBoxLayout(self.middle_container)
         middle_layout.setContentsMargins(0,0,0,0)
         middle_layout.setSpacing(0)
-        middle_layout.addWidget(self.file_list_view)
         middle_layout.addWidget(self.detail_table_view)
         layout.addWidget(self.middle_container, 7)
 

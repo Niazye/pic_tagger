@@ -1,6 +1,5 @@
-from src.models.category import Category
-from src.database.repository import categories, tags
-from src.database.schema import DEFAULT_CATEGORY_ID
+from src.models import Category
+from src.database import categories, tags, DEFAULT_CATEGORY_ID
 from src.utils.exception import DefaultCategoryError
 from src.utils.logger import get_logger
 

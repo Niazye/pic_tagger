@@ -1,4 +1,4 @@
-from src.database.repository import images, search
+from src.database import images, search
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)

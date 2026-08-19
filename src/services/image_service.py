@@ -2,10 +2,9 @@
 图片服务
 """
 from pathlib import Path
-from src.services.hash_service import hash_service
-from src.services.thumbnail_service import thumbnail_service
-from src.models.image import Image
-from src.database.repository import images
+from src.services import hash_service, thumbnail_service
+from src.models import Image
+from src.database import images
 from datetime import datetime
 from src.utils.exception import ImageExistError
 from src.utils.logger import get_logger
