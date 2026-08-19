@@ -13,9 +13,9 @@ class Category:
         - 'unique' 唯一式：每张图片该分类下只能有一个标签
     """
 
-    id: int | None = None
+    id: int = 0
     name: str = ""
-    color_hex: str | None = None
+    color_hex: str = "#FFFFFF"
     sort_order: int = 0
     category_type: str = "free"
 
