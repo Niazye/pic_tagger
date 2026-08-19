@@ -86,5 +86,46 @@ class ImageService:
         """
         return images.get_all()
 
+    def update_description(self, image_id: int, description:str) -> Image | None:
+        """
+        更新图片的描述信息。
+
+        :param image_id: 图片 ID
+        :param description: 新的描述信息
+        :return: 更新后的 Image 对象，如果图片不存在则返回 None
+        """
+        image = images.get_by_id(image_id)
+        if not image:
+            logger.warning(f"更新图片描述失败: 图片不存在 id={image_id}")
+            return None
+        image.description = description
+        images.update(image)
+        logger.info(f"更新图片描述: id={image_id}, description={description}")
+        return image
+    def get_image_by_id(self, image_id: int) -> Image | None:
+        """
+        根据图片 ID 获取图片。
+
+        :param image_id: 图片 ID
+        :return: 如果找到返回对应的 Image 对象，否则返回 None
+        """
+        return images.get_by_id(image_id)
+    def update_description(self, image_id: int, description: str) -> Image | None:
+        """
+        更新图片的描述信息。
+
+        :param image_id: 图片 ID
+        :param description: 新的描述信息
+        :return: 更新后的 Image 对象，如果图片不存在则返回 None
+        """
+        image = images.get_by_id(image_id)
+        if not image:
+            logger.warning(f"更新图片描述失败: 图片不存在 id={image_id}")
+            return None
+        images.update_description(image_id, description)
+        image.description = description
+        logger.info(f"更新图片描述: id={image_id}, description={description}")
+        return image
+
 # 模块级单例实例
 image_service = ImageService()
