@@ -23,7 +23,7 @@ class Database:
             return self._conn
 
         ensure_dirs()
-        self._conn = sqlite3.connect(str(self.db_path))
+        self._conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
         # 启用外键约束（SQLite 默认关闭）
         self._conn.execute("PRAGMA foreign_keys = ON")
         # 返回字典形式的行，便于按列名访问
