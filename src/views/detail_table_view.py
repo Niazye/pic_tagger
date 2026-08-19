@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QMainWindow
+from PyQt6.QtCore import Qt
 from src.services import image_service, category_service, image_tag_service
 from src.models import Image, Category
 from datetime import datetime
@@ -56,7 +57,9 @@ class DetailTableView(QTableWidget):
 
     def _populate_row(self, row: int, image: Image, categories: list[Category]) -> None:
         # 文件名
-        self.setItem(row, 0, QTableWidgetItem(image.file_name or image.file_path))
+        name_item = QTableWidgetItem(image.file_name or image.file_path)
+        name_item.setData(Qt.ItemDataRole.UserRole, image.id)  # 将图片 ID 存储在 UserRole 中，便于后续操作
+        self.setItem(row, 0, name_item)
 
         # 大小
         size_text = format_size(image.file_size)
