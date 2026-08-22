@@ -1,11 +1,11 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout, QWidget, QLabel, QFileDialog, QMessageBox
-from src.views import ToolBar, DetailTableView, FileListView ,DetailPanel
+from src.views import ToolBar, DetailTableView, FileListView, DetailPanel
 from src.controllers import ImportController
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QGuiApplication
 from pathlib import Path
 from src.utils.logger import get_logger
-from src.services import image_service, search_service
+from src.services import image_service, search_service, backup_service
 import os
 import subprocess
 import sys
@@ -58,6 +58,8 @@ class MainWindow(QMainWindow):
         self.toolbar.search_input.textChanged.connect(self._on_search_changed)
         self.toolbar.view_group.buttonClicked.connect(self._on_view_changed)
         self.toolbar.refresh_button.clicked.connect(self._on_refresh_clicked)
+        self.toolbar.export_button.clicked.connect(self._on_export_clicked)
+
     def _on_delete_images(self, image_ids: list[int]):
         """处理删除图片索引的请求。
 
@@ -80,6 +82,15 @@ class MainWindow(QMainWindow):
         self._refresh_all()
         logger.info(f"删除图片索引: {len(image_ids)} 张图片的索引已删除")
 
+    def _on_export_clicked(self):
+        """处理导出数据库备份的请求。"""
+        path, _ = QFileDialog.getSaveFileName(
+            self, "导出数据库备份", "pictaggerbackup.db",
+            filter="数据库文件 (*.db)"
+        )
+        if path:
+            backup_service.backup(path)
+            QMessageBox.information(self, "导出完成", f"数据库备份已导出到: {path}")
 
     def _on_refresh_clicked(self):
         """处理刷新按钮点击事件。"""
