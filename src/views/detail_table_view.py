@@ -60,6 +60,9 @@ class DetailTableView(QTableWidget):
         # 文件名
         name_item = QTableWidgetItem(image.file_name or image.file_path)
         name_item.setData(Qt.ItemDataRole.UserRole, image.id)  # 将图片 ID 存储在 UserRole 中，便于后续操作
+        if image.is_missing:
+            name_item.setText(f"⚠ {image.file_name or image.file_path}")
+            name_item.setForeground(Qt.GlobalColor.gray)
         self.setItem(row, 0, name_item)
 
         # 大小
