@@ -19,7 +19,7 @@ def create_app() -> QApplication:
     window.setWindowFlag(window.windowFlags() | Qt.WindowType.WindowMinimizeButtonHint | Qt.WindowType.WindowMaximizeButtonHint)
 
     window.showMaximized()
-    app._main_window = window  # 将主窗口设置为应用的属性，便于在其他地方访问
+    app._main_window = window  # 将主窗口设置为应用的属性，便于在其他地方访问 # type: ignore
     return app
 
 def main():
