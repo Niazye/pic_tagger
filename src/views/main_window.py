@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout, QWidget, QLabel, QFileDialog
-from src.views import ToolBar, DetailTableView
+from src.views import ToolBar, DetailTableView, DetailPanel
 from src.controllers import ImportController
 from PyQt6.QtCore import Qt
 from pathlib import Path
 from src.utils.logger import get_logger
+from src.services.image_service import image_service
 
 logger = get_logger(__name__)
 
@@ -35,13 +36,15 @@ class MainWindow(QMainWindow):
         middle_layout.addWidget(self.detail_table_view)
         layout.addWidget(self.middle_container, 7)
 
-        self.datail_placeholder = QLabel("详情区")
-        self.datail_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.datail_placeholder.setStyleSheet("background-color: #e0e0e0; border: 1px solid #ccc;")
-        layout.addWidget(self.datail_placeholder, 3)
+        # 详情区
+        self.detail_panel = DetailPanel(self)
+        layout.addWidget(self.detail_panel, 3)
 
         self.setCentralWidget(central_widget)
 
+        # 连接信号        
+        self.detail_table_view.itemSelectionChanged.connect(self._on_selection_changed)
+        self.detail_panel.tags_changed.connect(self._on_tags_changed)
         self.detail_table_view.refresh()  # 初始化时刷新详情表格
 
     def _on_import_clicked(self):
@@ -55,3 +58,36 @@ class MainWindow(QMainWindow):
     def _on_import_finished(self, success_count: int, failure_count: int):
         self.detail_table_view.refresh()
         logger.info(f"导入完成: 成功 {success_count} 张，失败 {failure_count} 张")
+
+    def _on_tags_changed(self):
+        """当标签发生变化时，刷新详情表格和文件列表。"""
+        self.detail_table_view.refresh()
+
+    def _on_selection_changed(self):
+        """当选中图片发生变化时，更新详情面板的显示。
+
+        """
+        # 获取当前选中的图片
+        selected = self.detail_table_view.selectedItems()
+        if not selected:
+            self.detail_panel.clear()
+            return
+        # 获取选中行的id
+        rows = set()
+        for item in selected:
+            rows.add(item.row())
+        ids = []
+        for row in rows:
+            name_item = self.detail_table_view.item(row, 0)
+            if name_item:
+                image_id = name_item.data(Qt.ItemDataRole.UserRole)
+                if image_id is not None:
+                    ids.append(image_id)
+        if len(ids) == 1:
+            image = image_service.get_image_by_id(ids[0])
+            if image:
+                self.detail_panel.show_image(image)
+        elif len(ids) > 1:
+            self.detail_panel.show_multi(ids)
+        else:
+            self.detail_panel.clear()
