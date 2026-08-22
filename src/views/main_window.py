@@ -56,6 +56,7 @@ class MainWindow(QMainWindow):
         self.detail_table_view.refresh()  # 初始化时刷新详情表格
         self.file_list_view.refresh()  # 初始化时刷新文件列表
         self.toolbar.search_input.textChanged.connect(self._on_search_changed)
+        self.toolbar.view_group.buttonClicked.connect(self._on_view_changed)
     def _on_delete_images(self, image_ids: list[int]):
         """处理删除图片索引的请求。
 
@@ -78,6 +79,21 @@ class MainWindow(QMainWindow):
         self._refresh_all()
         logger.info(f"删除图片索引: {len(image_ids)} 张图片的索引已删除")
 
+    def _on_view_changed(self, button):
+        """处理视图切换的请求。
+
+        :param button: 被点击的按钮
+        """
+        index = self.toolbar.view_buttons.index(button)
+        if index == 4: # 详情列表
+            self.file_list_view.hide()
+            self.detail_table_view.show()
+        else:
+            # 超大/大/中/小图标
+            sizes = [256, 128, 64, 48]
+            self.file_list_view.set_icon_size(sizes[index])
+            self.detail_table_view.hide()
+            self.file_list_view.show()
 
     def _on_search_changed(self, keyword: str):
         """处理搜索输入框文本变化的请求。
