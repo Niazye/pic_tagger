@@ -55,6 +55,10 @@ class MainWindow(QMainWindow):
         self.detail_panel.tags_changed.connect(self._on_tags_changed)
         self.detail_table_view.refresh()  # 初始化时刷新详情表格
         self.file_list_view.refresh()  # 初始化时刷新文件列表
+        self.detail_table_view.delete_requested.connect(self._on_delete_images)
+        self.detail_table_view.copy_path_requested.connect(self._on_copy_paths)
+        self.detail_table_view.reveal_requested.connect(self._on_reveal_files)
+        self.detail_table_view.reconnect_requested.connect(self._on_reconnect_files)
         self.toolbar.search_input.textChanged.connect(self._on_search_changed)
         self.toolbar.view_group.buttonClicked.connect(self._on_view_changed)
         self.toolbar.refresh_button.clicked.connect(self._on_refresh_clicked)

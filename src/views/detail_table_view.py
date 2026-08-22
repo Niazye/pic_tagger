@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QMainWindow
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QMainWindow, QMenu
+from PyQt6.QtCore import Qt, pyqtSignal
 from src.services import image_service, category_service, image_tag_service
 from src.models import Image, Category
 from datetime import datetime
@@ -22,6 +22,13 @@ class _NumericItem(QTableWidgetItem):
 
 class DetailTableView(QTableWidget):
     BASE_COLUMNS = ["文件名", "大小", "尺寸", "修改时间", "导入时间"]
+
+    # 右键菜单信号
+    delete_requested = pyqtSignal(list)  # 删除
+    copy_path_requested = pyqtSignal(list)  # 复制路径
+    reveal_requested = pyqtSignal(list)  # 显示在文件夹中
+    reconnect_requested = pyqtSignal(list)  # 重新连接
+
     def __init__(self, parent: QMainWindow | None = None):
         super().__init__(parent)
         self.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -31,6 +38,8 @@ class DetailTableView(QTableWidget):
         self.horizontalHeader().setStretchLastSection(True)
         self.horizontalHeader().setSortIndicatorShown(True)
         self.setSortingEnabled(True)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._show_context_menu)
 
     def refresh(self, images: list[Image] | None = None) -> None:
         if images is None:
@@ -55,6 +64,45 @@ class DetailTableView(QTableWidget):
         # 重新启用排序
         self.setSortingEnabled(True)
         logger.debug(f"刷新详细信息表格: 共 {len(images)} 张图片, {len(categories)} 个分类")
+
+    def _show_context_menu(self, pos) -> None:
+        """显示右键菜单。"""
+        item = self.itemAt(pos)
+        if not item:
+            return
+        # 确保右键点击的行被选中
+        if not item.isSelected():
+            self.clearSelection()
+            item.setSelected(True)
+
+        menu = QMenu(self)
+        delete_action = menu.addAction("删除索引")
+        copy_action = menu.addAction("复制路径")
+        reveal_action = menu.addAction("在文件管理器中定位")
+        reconnect_action = menu.addAction("重新连接文件")
+
+        # 获取选中行的图片 ID
+        rows = set()
+        for selected_item in self.selectedItems():
+            rows.add(selected_item.row())
+        ids = []
+        for row in rows:
+            name_item = self.item(row, 0)
+            if name_item:
+                image_id = name_item.data(Qt.ItemDataRole.UserRole)
+                if image_id is not None:
+                    ids.append(image_id)
+
+        action = menu.exec(self.mapToGlobal(pos))
+        if action == delete_action:
+            self.delete_requested.emit(ids)
+        elif action == copy_action:
+            self.copy_path_requested.emit(ids)
+        elif action == reveal_action:
+            self.reveal_requested.emit(ids)
+        elif action == reconnect_action:
+            self.reconnect_requested.emit(ids)
+
 
     def _populate_row(self, row: int, image: Image, categories: list[Category]) -> None:
         # 文件名
