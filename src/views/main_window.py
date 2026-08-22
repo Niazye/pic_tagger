@@ -6,6 +6,9 @@ from PyQt6.QtGui import QGuiApplication
 from pathlib import Path
 from src.utils.logger import get_logger
 from src.services.image_service import image_service
+import os
+import subprocess
+import sys
 
 logger = get_logger(__name__)
 
@@ -83,6 +86,28 @@ class MainWindow(QMainWindow):
         if paths:
             QGuiApplication.clipboard().setText("\n".join(paths))
             logger.info(f"复制图片路径: {len(paths)} 个路径已复制到剪贴板")
+
+    def _on_reveal_files(self, image_ids: list[int]):
+        """在文件管理器中定位文件"""
+        if not image_ids:
+            return
+        for image_id in image_ids:
+            image = image_service.get_image_by_id(image_id)
+            if image and Path(image.file_path).exists():
+                self._reveal_in_file_manager(image.file_path)
+
+    def _reveal_in_file_manager(self, file_path: str):
+        """在文件管理器中定位文件。
+
+        :param file_path: 文件路径
+        """
+        path = Path(file_path)
+        if os.name == "nt": # Windows
+            subprocess.Popen(["explorer", "/select,", str(path)])
+        elif sys.platform == "darwin": # macOS
+            subprocess.Popen(["open", "-R", str(path)])
+        else: # Linux
+            subprocess.Popen(["xdg-open", str(path.parent)])
 
     def _refresh_all(self):
         self.detail_table_view.refresh()
