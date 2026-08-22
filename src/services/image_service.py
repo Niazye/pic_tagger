@@ -6,7 +6,7 @@ from src.services import hash_service, thumbnail_service
 from src.models import Image
 from src.database import images
 from datetime import datetime
-from src.utils.exception import ImageExistError
+from src.utils.exception import ImageExistError, NoThumbnailError
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -55,9 +55,12 @@ class ImageService:
 
         # 删除数据库中的图片记录
         images.delete(image_id)
-        
-        # 删除缩略图
-        thumbnail_service.remove_thumbnail(image_id)
+
+        # 删除缩略图（缩略图不存在时忽略，不崩溃）
+        try:
+            thumbnail_service.remove_thumbnail(image_id)
+        except NoThumbnailError:
+            logger.warning(f"删除缩略图时缩略图不存在: image_id={image_id}")
 
         # 如果需要删除原始文件
         if delete_file:
@@ -175,6 +178,22 @@ class ImageService:
         """
         images.set_missing(image_id, is_missing)
         logger.info(f"设置图片缺失状态: id={image_id}, is_missing={is_missing}")
+
+    def regenerate_missing_thumbnails(self) -> int:
+        """重新生成缺失的缩略图。
+
+        :return: 重新生成的缩略图数量
+        """
+        count = 0
+        for image in self.get_all_images():
+            thumbnail_path = thumbnail_service.get_thumbnail_path(image.id)
+            if not thumbnail_path.exists():
+                try:
+                    thumbnail_service.ensure_thumbnail(image.id, Path(image.file_path))
+                    count += 1
+                except Exception as e:
+                    logger.warning(f"重新生成缩略图失败: image_id={image.id}, 错误: {e}")
+        return count
 
 # 模块级单例实例
 image_service = ImageService()

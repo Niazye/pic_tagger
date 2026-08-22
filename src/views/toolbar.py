@@ -40,3 +40,7 @@ class ToolBar(QToolBar):
         # 添加导出按钮
         self.export_button = QPushButton("导出")
         self.addWidget(self.export_button)
+
+        # 添加恢复按钮
+        self.restore_button = QPushButton("恢复")
+        self.addWidget(self.restore_button)

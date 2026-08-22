@@ -67,6 +67,7 @@ class MainWindow(QMainWindow):
         self.toolbar.view_group.buttonClicked.connect(self._on_view_changed)
         self.toolbar.refresh_button.clicked.connect(self._on_refresh_clicked)
         self.toolbar.export_button.clicked.connect(self._on_export_clicked)
+        self.toolbar.restore_button.clicked.connect(self._on_restore_clicked)
 
     def _on_delete_images(self, image_ids: list[int]):
         """处理删除图片索引的请求。
@@ -262,3 +263,36 @@ class MainWindow(QMainWindow):
             self.detail_panel.show_multi(ids)
         else:
             self.detail_panel.clear()
+
+    def _on_restore_clicked(self):
+        """处理恢复数据库备份的请求。"""
+        path, _ = QFileDialog.getOpenFileName(
+            self, "选择备份文件", "",
+            filter="数据库文件 (*.db)"
+        )
+        if not path:
+            return
+        # 确认恢复（会覆盖当前数据）
+        reply = QMessageBox.question(
+            self, "确认恢复",
+            "恢复备份将覆盖当前所有数据，确定继续吗？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            backup_service.restore(path)
+        except Exception as e:
+            logger.error(f"恢复数据库失败: {e}")
+            QMessageBox.critical(self, "恢复失败", f"无法恢复数据库: {e}")
+            return
+        # 恢复后刷新所有视图
+        self._refresh_all()
+        self.detail_panel.clear()
+        # 重新生成缺失的缩略图
+        regenerated = image_service.regenerate_missing_thumbnails()
+        if regenerated:
+            self._refresh_all()  # 重新生成后再次刷新
+        QMessageBox.information(self, "恢复完成", f"数据库已从备份恢复。重新生成 {regenerated} 张缩略图。")
+        logger.info(f"数据库恢复完成: {path}")

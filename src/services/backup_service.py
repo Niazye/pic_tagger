@@ -24,7 +24,7 @@ class BackupService:
         db_path = Path(db.db_path)
         db.close()  # 关闭连接
         shutil.copy2(source, db_path)
-        db.reconnect()  # 重新连接
+        db.connect()  # 重新连接（connect 会重新建立连接并建表）
         logger.info(f"数据库恢复完成: {source}")
 
 backup_service = BackupService()
