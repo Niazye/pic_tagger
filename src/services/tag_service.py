@@ -72,10 +72,15 @@ class TagService:
         logger.info(f"设置标签链接: id={tag_id}, url={url}")
         return tag
 
-    def autocomplete_tags(self, prefix: str, limit: int = 10) -> list[Tag]:
-        """具有模糊搜索功能的标签自动补全
+    def autocomplete_tags(self, category_id: int, prefix: str, limit: int = 10) -> list[str]:
+        """按前缀自动补全指定分类下的标签名。
+
+        :param category_id: 分类 ID
+        :param prefix: 输入前缀
+        :param limit: 返回数量上限
+        :return: 匹配的标签名列表
         """
-        raise NotImplementedError("标签自动补全功能尚未实现")
+        return tags.autocomplete(category_id, prefix, limit)
 
 
 tag_service = TagService()
