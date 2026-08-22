@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
         self.file_list_view.refresh()  # 初始化时刷新文件列表
         self.toolbar.search_input.textChanged.connect(self._on_search_changed)
         self.toolbar.view_group.buttonClicked.connect(self._on_view_changed)
+        self.toolbar.refresh_button.clicked.connect(self._on_refresh_clicked)
     def _on_delete_images(self, image_ids: list[int]):
         """处理删除图片索引的请求。
 
@@ -78,6 +79,15 @@ class MainWindow(QMainWindow):
             image_service.remove_image(image_id, delete_file=False)
         self._refresh_all()
         logger.info(f"删除图片索引: {len(image_ids)} 张图片的索引已删除")
+
+
+    def _on_refresh_clicked(self):
+        """处理刷新按钮点击事件。"""
+        missing = image_service.check_missing_files()
+        self._refresh_all()
+        if missing:
+            QMessageBox.information(self, "刷新完成", f"检测到 {missing} 张图片文件丢失。")
+        logger.info(f"刷新完成: 检测到 {missing} 张图片文件丢失。")
 
     def _on_view_changed(self, button):
         """处理视图切换的请求。
