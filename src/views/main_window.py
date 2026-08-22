@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout, QWidget, QLabel, QFileDialog
+from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout, QWidget, QLabel, QFileDialog, QMessageBox
 from src.views import ToolBar, DetailTableView, DetailPanel
 from src.controllers import ImportController
 from PyQt6.QtCore import Qt
@@ -46,6 +46,30 @@ class MainWindow(QMainWindow):
         self.detail_table_view.itemSelectionChanged.connect(self._on_selection_changed)
         self.detail_panel.tags_changed.connect(self._on_tags_changed)
         self.detail_table_view.refresh()  # 初始化时刷新详情表格
+    def _on_delete_images(self, image_ids: list[int]):
+        """处理删除图片索引的请求。
+
+        :param image_ids: 要删除的图片 ID 列表
+        """
+        if not image_ids:
+            return
+
+        # 弹出确认对话框
+        reply = QMessageBox.question(
+            self, "确认删除",
+            f"确定要删除选中的 {len(image_ids)} 张图片的索引吗？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        for image_id in image_ids:
+            image_service.remove_image(image_id, delete_file=False)
+        self._refresh_all()
+        logger.info(f"删除图片索引: {len(image_ids)} 张图片的索引已删除")
+
+    def _refresh_all(self):
+        self.detail_table_view.refresh()
 
     def _on_import_clicked(self):
         paths, _ = QFileDialog.getOpenFileNames(
