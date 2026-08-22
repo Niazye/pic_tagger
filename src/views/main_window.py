@@ -109,6 +109,33 @@ class MainWindow(QMainWindow):
         else: # Linux
             subprocess.Popen(["xdg-open", str(path.parent)])
 
+    def _on_reconnect_files(self, image_ids: list[int]):
+        """处理重新连接文件的请求。
+
+        :param image_ids: 要重新连接的图片 ID 列表
+        """
+        if not image_ids:
+            return
+        for image_id in image_ids:
+            image = image_service.get_image_by_id(image_id)
+            if not image:
+                return
+            path, _ = QFileDialog.getOpenFileName(
+                self, "选择新的图片文件",
+                str(Path(image.file_path).parent),
+                filter=f"图片文件 ({'*'+' *'.join(self.import_controller.IMAGE_EXTENSIONS)})"
+            )
+            if not path:
+                continue
+            try:
+                image_service.reconnect_image(image_id, Path(path))
+            except Exception as e:
+                logger.error(f"重新连接图片失败: image_id={image_id}, new_path={path}, 错误: {e}")
+                QMessageBox.critical(self, "重新连接失败", f"无法重新连接图片文件: {e}")
+                return
+            logger.info(f"重新连接图片: image_id={image_id}, new_path={path}")
+        self._refresh_all()
+
     def _refresh_all(self):
         self.detail_table_view.refresh()
 
