@@ -6,6 +6,7 @@
 
 import sqlite3
 from datetime import datetime
+from pathlib import Path
 
 from src.database import get_connection
 from src.models import Category, Tag, Image
@@ -487,3 +488,39 @@ tags = TagRepository()
 images = ImageRepository()
 image_tags = ImageTagRepository()
 search = SearchRepository()
+
+def reconnect_image(self, image_id: int, new_path: Path) -> Image | None:
+        """重新连接图片文件（文件被移动/重命名后）.
+
+        :param image_id: 图片 ID
+        :param new_path: 新的文件路径
+        :return: 更新后的 Image 对象，如果图片不存在则返回 None
+        """
+        image = images.get_by_id(image_id)
+        if not image:
+            logger.warning(f"重新连接图片失败: 图片不存在 id={image_id}")
+            return None
+        if not new_path.exists() or not new_path.is_file():
+            raise FileNotFoundError(f"文件不存在: {new_path}")
+
+        # 重新计算哈希、尺寸等信息
+        file_hash = hash_service.compute_sha256(str(new_path))
+        import PIL.Image
+        f = PIL.Image.open(new_path)
+        width, height = f.size
+        f.close()
+
+        image.file_path = str(new_path)
+        image.file_hash = file_hash
+        image.file_name = new_path.name
+        image.file_size = new_path.stat().st_size
+        image.width = width
+        image.height = height
+        image.file_mtime = datetime.fromtimestamp(new_path.stat().st_mtime)
+        image.is_missing = False
+
+        images.update(image)
+        # 重新生成缩略图
+        thumbnail_service.ensure_thumbnail(image.id, new_path)
+        logger.info(f"重新连接图片: id={image_id}, new_path={new_path}")
+        return image
