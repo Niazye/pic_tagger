@@ -82,6 +82,11 @@ class DetailPanel(QWidget):
         self.category_combo = QComboBox()
         tag_input_row.addWidget(self.category_combo, 1)
 
+        self.manage_categories_btn = QPushButton("管理")
+        self.manage_categories_btn.setToolTip("管理分类")
+        self.manage_categories_btn.clicked.connect(self._on_manage_categories)
+        tag_input_row.addWidget(self.manage_categories_btn)
+
         self.tag_input = QLineEdit()
         self.tag_input.setPlaceholderText("输入标签，回车添加")
         self.tag_input.returnPressed.connect(self._on_add_tag)
@@ -281,3 +286,11 @@ class DetailPanel(QWidget):
         self.tags_changed.emit()
         logger.info(f"移除标签: tag_id={tag_id}, images={self._selected_ids}")
 
+    def _on_manage_categories(self) -> None:
+        """打开分类管理对话框。"""
+        from src.views.dialogs.category_dialog import CategoryDialog
+        dialog = CategoryDialog(self)
+        dialog.exec()
+        self._update_categories()
+        self._update_tags()
+        self.tags_changed.emit()
