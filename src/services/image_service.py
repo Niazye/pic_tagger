@@ -146,5 +146,31 @@ class ImageService:
         thumbnail_service.ensure_thumbnail(image.id, new_path)
         logger.info(f"重新连接图片: id={image_id}, new_path={new_path}")
         return image
+
+    def check_missing_files(self) -> int:
+        """
+        检查数据库中所有图片的文件是否存在，并更新 is_missing 字段。
+
+        :return: 缺失文件的数量
+        """
+        missing_count = 0
+        for image in self.get_all_images():
+            is_missing = not Path(image.file_path).exists()
+            if is_missing != bool(image.is_missing):
+                self.set_missing(image.id, is_missing)
+            if is_missing:
+                missing_count += 1
+        return missing_count
+
+    def set_missing(self, image_id: int, is_missing: bool) -> None:
+        """
+        设置图片的 is_missing 字段。
+
+        :param image_id: 图片 ID
+        :param is_missing: 是否缺失
+        """
+        images.set_missing(image_id, is_missing)
+        logger.info(f"设置图片缺失状态: id={image_id}, is_missing={is_missing}")
+
 # 模块级单例实例
 image_service = ImageService()
