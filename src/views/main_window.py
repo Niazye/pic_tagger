@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout, QWidget, QLabel, QFileDialog, QMessageBox
-from src.views import ToolBar, DetailTableView, DetailPanel
+from src.views import ToolBar, DetailTableView, FileListView ,DetailPanel
 from src.controllers import ImportController
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QGuiApplication
@@ -32,12 +32,15 @@ class MainWindow(QMainWindow):
         layout.setSpacing(0)
 
         self.detail_table_view = DetailTableView(self)
+        self.file_list_view = FileListView(self)
+        self.file_list_view.hide()  # 默认隐藏文件列表视图，显示详情表格
 
         self.middle_container = QWidget()
         middle_layout = QHBoxLayout(self.middle_container)
         middle_layout.setContentsMargins(0,0,0,0)
         middle_layout.setSpacing(0)
         middle_layout.addWidget(self.detail_table_view)
+        middle_layout.addWidget(self.file_list_view)
         layout.addWidget(self.middle_container, 7)
 
         # 详情区
@@ -46,10 +49,12 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(central_widget)
 
-        # 连接信号        
+        # 连接信号
+        self.file_list_view.itemSelectionChanged.connect(self._on_selection_changed)
         self.detail_table_view.itemSelectionChanged.connect(self._on_selection_changed)
         self.detail_panel.tags_changed.connect(self._on_tags_changed)
         self.detail_table_view.refresh()  # 初始化时刷新详情表格
+        self.file_list_view.refresh()  # 初始化时刷新文件列表
     def _on_delete_images(self, image_ids: list[int]):
         """处理删除图片索引的请求。
 
@@ -137,6 +142,8 @@ class MainWindow(QMainWindow):
         self._refresh_all()
 
     def _refresh_all(self):
+        """刷新文件列表和详情表格。"""
+        self.file_list_view.refresh()
         self.detail_table_view.refresh()
 
     def _on_import_clicked(self):
@@ -154,6 +161,7 @@ class MainWindow(QMainWindow):
     def _on_tags_changed(self):
         """当标签发生变化时，刷新详情表格和文件列表。"""
         self.detail_table_view.refresh()
+        self.file_list_view.refresh()
 
     def _on_selection_changed(self):
         """当选中图片发生变化时，更新详情面板的显示。
