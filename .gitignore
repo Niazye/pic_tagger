@@ -6,3 +6,5 @@ archived/
 __pycache__/
 .pytest_cache/
 cache/
+*.db
+logs/
