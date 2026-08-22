@@ -199,6 +199,7 @@ class MainWindow(QMainWindow):
                 return
             logger.info(f"重新连接图片: image_id={image_id}, new_path={path}")
         self._refresh_all()
+        self._on_selection_changed()  # 更新详情面板显示
 
     def _refresh_all(self):
         """刷新文件列表和详情表格。"""

@@ -127,6 +127,10 @@ class ImageService:
 
         # 重新计算哈希、尺寸等信息
         file_hash = hash_service.compute_sha256(str(new_path))
+
+        existing_image = images.get_by_hash(file_hash)
+        if existing_image and existing_image.id != image_id:
+            raise ImageExistError(f"图片已存在于数据库中: {new_path}")
         import PIL.Image
         f = PIL.Image.open(new_path)
         width, height = f.size
@@ -143,7 +147,7 @@ class ImageService:
 
         images.update(image)
         # 重新生成缩略图
-        thumbnail_service.ensure_thumbnail(image.id, new_path)
+        thumbnail_service.generate_thumbnail(new_path, image_id)
         logger.info(f"重新连接图片: id={image_id}, new_path={new_path}")
         return image
 
