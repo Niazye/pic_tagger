@@ -32,8 +32,9 @@ class DetailTableView(QTableWidget):
         self.horizontalHeader().setSortIndicatorShown(True)
         self.setSortingEnabled(True)
 
-    def refresh(self) -> None:
-        images = image_service.get_all_images()
+    def refresh(self, images: list[Image] | None = None) -> None:
+        if images is None:
+            images = image_service.get_all_images()
         categories = category_service.get_all_categories()
 
         category_columns = [c.name for c in categories]

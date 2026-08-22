@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QGuiApplication
 from pathlib import Path
 from src.utils.logger import get_logger
-from src.services.image_service import image_service
+from src.services import image_service, search_service
 import os
 import subprocess
 import sys
@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
         self.detail_panel.tags_changed.connect(self._on_tags_changed)
         self.detail_table_view.refresh()  # 初始化时刷新详情表格
         self.file_list_view.refresh()  # 初始化时刷新文件列表
+        self.toolbar.search_input.textChanged.connect(self._on_search_changed)
     def _on_delete_images(self, image_ids: list[int]):
         """处理删除图片索引的请求。
 
@@ -76,6 +77,23 @@ class MainWindow(QMainWindow):
             image_service.remove_image(image_id, delete_file=False)
         self._refresh_all()
         logger.info(f"删除图片索引: {len(image_ids)} 张图片的索引已删除")
+
+
+    def _on_search_changed(self, keyword: str):
+        """处理搜索输入框文本变化的请求。
+
+        :param keyword: 搜索关键字
+        """
+        keyword = keyword.strip()
+        if keyword:
+            images = search_service.search_image_by_keyword(keyword)
+        else:
+            images = None
+
+        # 根据关键字搜索图片
+        self.file_list_view.refresh(images)
+        self.detail_table_view.refresh(images)
+
     def _on_copy_paths(self, image_ids: list[int]):
         """处理复制图片路径的请求。
 

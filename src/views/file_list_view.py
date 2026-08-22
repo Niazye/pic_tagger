@@ -25,12 +25,14 @@ class FileListView(QListWidget):
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)  # 启用自定义右键菜单
         self.customContextMenuRequested.connect(self._show_context_menu)  # 连接右键菜单信号
 
-    def refresh(self) -> None:
+    def refresh(self, images: list[Image] | None = None) -> None:
         """刷新文件列表视图。
 
-        :param images: 可选的图片列表，如果为 None，则从数据库获取所有图片
+        :param images: 要显示的图片列表；为 None 时显示全部图片
         """
-        images = image_service.get_all_images()
+        self.clear()  # 清空当前列表
+        if images is None:
+            images = image_service.get_all_images()
         for image in images:
             self.add_image_item(image)
         logger.debug(f"刷新文件列表: 共 {len(images)} 张图片")
