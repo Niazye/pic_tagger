@@ -228,25 +228,32 @@ class MainWindow(QMainWindow):
         self.file_list_view.refresh()
 
     def _on_selection_changed(self):
-        """当选中图片发生变化时，更新详情面板的显示。
+        """当选中图片发生变化时，更新详情面板的显示。"""
+        # 根据当前激活的视图获取选中项
+        if not self.file_list_view.isHidden():
+            # 图标视图（超大/大/中/小）
+            selected = self.file_list_view.selectedItems()
+            if not selected:
+                self.detail_panel.clear()
+                return
+            ids = [item.data(Qt.ItemDataRole.UserRole) for item in selected]
+        else:
+            # 详情表格视图
+            selected = self.detail_table_view.selectedItems()
+            if not selected:
+                self.detail_panel.clear()
+                return
+            rows = set()
+            for item in selected:
+                rows.add(item.row())
+            ids = []
+            for row in rows:
+                name_item = self.detail_table_view.item(row, 0)
+                if name_item:
+                    image_id = name_item.data(Qt.ItemDataRole.UserRole)
+                    if image_id is not None:
+                        ids.append(image_id)
 
-        """
-        # 获取当前选中的图片
-        selected = self.detail_table_view.selectedItems()
-        if not selected:
-            self.detail_panel.clear()
-            return
-        # 获取选中行的id
-        rows = set()
-        for item in selected:
-            rows.add(item.row())
-        ids = []
-        for row in rows:
-            name_item = self.detail_table_view.item(row, 0)
-            if name_item:
-                image_id = name_item.data(Qt.ItemDataRole.UserRole)
-                if image_id is not None:
-                    ids.append(image_id)
         if len(ids) == 1:
             image = image_service.get_image_by_id(ids[0])
             if image:
