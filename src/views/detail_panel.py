@@ -92,6 +92,12 @@ class DetailPanel(QWidget):
         self.tag_input.returnPressed.connect(self._on_add_tag)
         tag_input_row.addWidget(self.tag_input, 2)
 
+        # 管理标签按钮
+        self.manage_tags_btn = QPushButton("管理标签")
+        self.manage_tags_btn.setToolTip("管理标签")
+        self.manage_tags_btn.clicked.connect(self._on_manage_tags)
+        tag_input_row.addWidget(self.manage_tags_btn)
+
         layout.addLayout(tag_input_row)
 
         # 已挂载标签列表（药丸样式）
@@ -292,5 +298,13 @@ class DetailPanel(QWidget):
         dialog = CategoryDialog(self)
         dialog.exec()
         self._update_categories()
+        self._update_tags()
+        self.tags_changed.emit()
+
+    def _on_manage_tags(self) -> None:
+        """打开标签管理对话框。"""
+        from src.views.dialogs.tag_dialog import TagDialog
+        dialog = TagDialog(self)
+        dialog.exec()
         self._update_tags()
         self.tags_changed.emit()
