@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout,
 from src.views import ToolBar, DetailTableView, DetailPanel
 from src.controllers import ImportController
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QGuiApplication
 from pathlib import Path
 from src.utils.logger import get_logger
 from src.services.image_service import image_service
@@ -67,6 +68,21 @@ class MainWindow(QMainWindow):
             image_service.remove_image(image_id, delete_file=False)
         self._refresh_all()
         logger.info(f"删除图片索引: {len(image_ids)} 张图片的索引已删除")
+    def _on_copy_paths(self, image_ids: list[int]):
+        """处理复制图片路径的请求。
+
+        :param image_ids: 要复制路径的图片 ID 列表
+        """
+        if not image_ids:
+            return
+        paths = []
+        for image_id in image_ids:
+            image = image_service.get_image_by_id(image_id)
+            if image:
+                paths.append(image.file_path)
+        if paths:
+            QGuiApplication.clipboard().setText("\n".join(paths))
+            logger.info(f"复制图片路径: {len(paths)} 个路径已复制到剪贴板")
 
     def _refresh_all(self):
         self.detail_table_view.refresh()
