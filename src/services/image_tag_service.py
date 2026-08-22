@@ -49,6 +49,16 @@ class ImageTagService:
             self.add_tag_to_image(image_id=image_id, tag_id=tag_id)
         logger.info(f"为图片批量添加标签: image_id={image_id}, tag_ids={tag_ids}")
 
+    def batch_remove_tag_from_images(self, image_ids: list[int], tag_id: int) -> None:
+        """从多张图片中批量移除标签。
+
+        :param image_ids: 图片 ID 列表
+        :param tag_id: 标签 ID
+        """
+        for image_id in image_ids:
+            self.remove_tag_from_image(image_id=image_id, tag_id=tag_id)
+        logger.info(f"从多张图片批量移除标签: image_ids={image_ids}, tag_id={tag_id}")
+
     def get_image_tags_grouped_by_category(self, image_id: int) -> dict[int, list[Tag]]:
         """获取图片的标签，并按分类分组
 
