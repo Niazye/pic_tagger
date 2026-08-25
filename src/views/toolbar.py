@@ -29,9 +29,15 @@ class ToolBar(QToolBar):
 
         self.addSeparator()  # 添加分隔符
 
-        # 添加刷新按钮
-        self.refresh_button = QPushButton("刷新")
+        # 添加源文件链接刷新按钮
+        self.refresh_button = QPushButton("刷新链接")
+        self.refresh_button.setToolTip("检查文件存在性与哈希变化，更新文件索引")
         self.addWidget(self.refresh_button)
+
+        # 添加缩略图生成刷新按钮
+        self.thumbnail_refresh_button = QPushButton("刷新缩略图")
+        self.thumbnail_refresh_button.setToolTip("始终重新生成全部缩略图")
+        self.addWidget(self.thumbnail_refresh_button)
 
         # 添加导入按钮
         self.import_button = QPushButton("导入")

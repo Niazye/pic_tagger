@@ -195,5 +195,19 @@ class ImageService:
                     logger.warning(f"重新生成缩略图失败: image_id={image.id}, 错误: {e}")
         return count
 
+    def regenerate_all_thumbnails(self) -> int:
+        """始终重新生成全部缩略图（不检查是否已存在，直接覆盖）。
+
+        :return: 成功生成的缩略图数量
+        """
+        count = 0
+        for image in self.get_all_images():
+            try:
+                thumbnail_service.generate_thumbnail(Path(image.file_path), image.id)
+                count += 1
+            except Exception as e:
+                logger.warning(f"重新生成缩略图失败: image_id={image.id}, 错误: {e}")
+        return count
+
 # 模块级单例实例
 image_service = ImageService()

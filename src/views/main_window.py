@@ -66,6 +66,7 @@ class MainWindow(QMainWindow):
         self.toolbar.search_input.textChanged.connect(self._on_search_changed)
         self.toolbar.view_group.buttonClicked.connect(self._on_view_changed)
         self.toolbar.refresh_button.clicked.connect(self._on_refresh_clicked)
+        self.toolbar.thumbnail_refresh_button.clicked.connect(self._on_thumbnail_refresh_clicked)
         self.toolbar.export_button.clicked.connect(self._on_export_clicked)
         self.toolbar.restore_button.clicked.connect(self._on_restore_clicked)
 
@@ -109,6 +110,14 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "刷新完成", f"检测到 {missing} 张图片文件丢失。")
         logger.info(f"刷新完成: 检测到 {missing} 张图片文件丢失。")
 
+    def _on_thumbnail_refresh_clicked(self):
+        """处理缩略图生成刷新按钮点击事件（始终刷新全部）。"""
+        count = image_service.regenerate_all_thumbnails()
+        self._refresh_all()
+        self._on_selection_changed()  # 更新详情面板预览图
+        QMessageBox.information(self, "缩略图刷新完成", f"已重新生成 {count} 张缩略图。")
+        logger.info(f"缩略图刷新完成: 重新生成 {count} 张缩略图。")
+        
     def _on_view_changed(self, button):
         """处理视图切换的请求。
 
