@@ -10,7 +10,7 @@ class ImportWorker(QThread):
     progress = pyqtSignal(int, int) # 进度信号，参数为当前进度和总进度
     image_imported = pyqtSignal(object) # 图片导入完成信号，参数为导入的 Image 对象
     conflict = pyqtSignal(str, str) # 冲突信号，参数为文件路径和哈希
-    finished = pyqtSignal(int, int) # 完成信号，参数为成功数和失败数
+    finished = pyqtSignal(int, int, list) # 完成信号，参数为成功数、失败数和失败原因列表
 
     def __init__(self, paths: list[Path], parent=None):
         super().__init__(parent)
@@ -20,6 +20,7 @@ class ImportWorker(QThread):
         total = len(self.paths)
         success_count = 0
         failure_count = 0
+        failures = []  # 收集失败原因
         for index, path in enumerate(self.paths, start = 1):
             self.progress.emit(index, total)
             try:
@@ -31,9 +32,11 @@ class ImportWorker(QThread):
             except ImageExistError as e:
                 self.conflict.emit(str(path), str(e))
                 failure_count += 1
+                failures.append(f"已存在: {path.name}")
                 logger.warning(f"图片已存在；跳过: {path}")
             except Exception as e:
                 logger.error(f"导入图片失败: {path}, 错误: {e}", exc_info=True)
                 failure_count += 1
+                failures.append(f"{path.name}: {e}")
         logger.info(f"导入完成: 成功 {success_count} 张，失败 {failure_count} 张")
-        self.finished.emit(success_count, failure_count)
+        self.finished.emit(success_count, failure_count, failures)

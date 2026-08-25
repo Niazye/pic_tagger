@@ -9,7 +9,7 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 class ImportController(QObject):
-    import_finished = pyqtSignal(int, int)  # 完成信号，参数为成功数和失败数
+    import_finished = pyqtSignal(int, int, list)  # 完成信号，参数为成功数、失败数和失败原因列表
 
     IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp'}
     def __init__(self, parent: QMainWindow | None = None):
@@ -30,12 +30,12 @@ class ImportController(QObject):
     def _start_import(self, paths: list[Path]) -> None:
         if not paths:
             logger.warning("没有文件可导入")
-            self.import_finished.emit(0, 0)
+            self.import_finished.emit(0, 0, [])
             return
         self.worker = ImportWorker(paths)
         self.worker.finished.connect(self._on_finished)
         self.worker.start()
 
-    def _on_finished(self, success_count: int, failure_count: int) -> None:
+    def _on_finished(self, success_count: int, failure_count: int, failures: list) -> None:
         self.worker = None
-        self.import_finished.emit(success_count, failure_count)
+        self.import_finished.emit(success_count, failure_count, failures)
