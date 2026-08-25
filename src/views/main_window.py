@@ -219,9 +219,21 @@ class MainWindow(QMainWindow):
         if paths:
             self.import_controller.import_files([Path(p) for p in paths])
 
-    def _on_import_finished(self, success_count: int, failure_count: int):
+    def _on_import_finished(self, success_count: int, failure_count: int, failures: list):
         self.detail_table_view.refresh()
+        self.file_list_view.refresh()
         logger.info(f"导入完成: 成功 {success_count} 张，失败 {failure_count} 张")
+        if failure_count > 0:
+            # 显示失败原因弹窗
+            detail = "\n".join(failures[:20])  # 最多显示前 20 条
+            if len(failures) > 20:
+                detail += f"\n... 等共 {len(failures)} 条失败"
+            QMessageBox.warning(
+                self, "导入完成",
+                f"成功导入 {success_count} 张，失败 {failure_count} 张。\n\n失败原因：\n{detail}"
+            )
+        elif success_count > 0:
+            QMessageBox.information(self, "导入完成", f"成功导入 {success_count} 张图片。")
 
     def _on_tags_changed(self):
         """当标签发生变化时，刷新详情表格和文件列表。"""
