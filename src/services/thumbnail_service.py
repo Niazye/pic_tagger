@@ -4,7 +4,7 @@
 
 from PIL import Image, UnidentifiedImageError
 from pathlib import Path
-from src.utils.path import get_thumbnail_dir, get_assets_dir
+from src.utils.path import get_thumbnail_dir, get_assets_dir, ensure_dirs
 from src.utils.exception import NoThumbnailError
 from src.utils.logger import get_logger
 
@@ -25,6 +25,7 @@ class ThumbnailService:
         file_name = f"{image_id}.png"
         thumbnail_path = get_thumbnail_dir() / file_name
         try:
+            ensure_dirs()
             with Image.open(image_path) as img:
                 img.thumbnail(size)
                 img.save(thumbnail_path, "PNG")
